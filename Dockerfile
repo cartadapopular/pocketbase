@@ -19,7 +19,5 @@ RUN apk add --no-cache ca-certificates
 COPY --from=builder /app/pocketbase /pb/pocketbase
 # JS migrations (auto-applied on start) — creates the `waitlist` collection.
 COPY pb_migrations /pb/pb_migrations
-# Persist the database + uploaded files across container restarts.
-VOLUME /pb/pb_data
 EXPOSE 8080
 CMD ["/pb/pocketbase", "serve", "--http=0.0.0.0:8080"]
