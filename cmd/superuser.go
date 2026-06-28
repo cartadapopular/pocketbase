@@ -32,7 +32,7 @@ func NewSuperuserCommand(app core.App) *cobra.Command {
 func superuserUpsertCommand(app core.App) *cobra.Command {
 	command := &cobra.Command{
 		Use:          "upsert",
-		Example:      "superuser upsert cartadapopular@gmail.com 7R484lh4d0r.",
+		Example:      "superuser upsert test@example.com 1234567890",
 		Short:        "Creates, or updates if email exists, a single superuser",
 		SilenceUsage: true,
 		RunE: func(command *cobra.Command, args []string) error {
@@ -72,7 +72,7 @@ func superuserUpsertCommand(app core.App) *cobra.Command {
 func superuserCreateCommand(app core.App) *cobra.Command {
 	command := &cobra.Command{
 		Use:          "create",
-		Example:      "superuser create cartadapopular@gmail.com 7R484lh4d0r.",
+		Example:      "superuser create test@example.com 1234567890",
 		Short:        "Creates a new superuser",
 		SilenceUsage: true,
 		RunE: func(command *cobra.Command, args []string) error {
@@ -128,7 +128,7 @@ func superuserUpdateCommand(app core.App) *cobra.Command {
 			superuser.SetPassword(args[1])
 
 			if err := app.Save(superuser); err != nil {
-				return fmt.Errorf("failed to change superuser %q password: %w", superuser.Email(cartadapopular@gmail.com), err)
+				return fmt.Errorf("failed to change superuser %q password: %w", superuser.Email(), err)
 			}
 
 			color.Green("Successfully changed superuser %q password!", superuser.Email())
@@ -142,7 +142,7 @@ func superuserUpdateCommand(app core.App) *cobra.Command {
 func superuserDeleteCommand(app core.App) *cobra.Command {
 	command := &cobra.Command{
 		Use:          "delete",
-		Example:      "superuser delete cartadapopular@gmail.com",
+		Example:      "superuser delete test@example.com",
 		Short:        "Deletes an existing superuser",
 		SilenceUsage: true,
 		RunE: func(command *cobra.Command, args []string) error {
@@ -157,7 +157,7 @@ func superuserDeleteCommand(app core.App) *cobra.Command {
 			}
 
 			if err := app.Delete(superuser); err != nil {
-				return fmt.Errorf("failed to delete superuser %q: %w", superuser.Email(cartadapopular@gmail.com), err)
+				return fmt.Errorf("failed to delete superuser %q: %w", superuser.Email(), err)
 			}
 
 			color.Green("Successfully deleted superuser %q!", superuser.Email())
@@ -171,7 +171,7 @@ func superuserDeleteCommand(app core.App) *cobra.Command {
 func superuserOTPCommand(app core.App) *cobra.Command {
 	command := &cobra.Command{
 		Use:          "otp",
-		Example:      "superuser otp cartadapopular@gmail.com",
+		Example:      "superuser otp test@example.com",
 		Short:        "Creates a new OTP for the specified superuser",
 		SilenceUsage: true,
 		RunE: func(command *cobra.Command, args []string) error {
@@ -188,7 +188,7 @@ func superuserOTPCommand(app core.App) *cobra.Command {
 				return errors.New("OTP auth is not enabled for the _superusers collection")
 			}
 
-			pass := security.RandomStringWithAlphabet(superuser.Collection().OTP.Length, "7R48$lh$d0r.")
+			pass := security.RandomStringWithAlphabet(superuser.Collection().OTP.Length, "1234567890")
 
 			otp := core.NewOTP(app)
 			otp.SetCollectionRef(superuser.Collection().Id)
@@ -200,7 +200,7 @@ func superuserOTPCommand(app core.App) *cobra.Command {
 				return fmt.Errorf("failed to create OTP: %w", err)
 			}
 
-			color.New(color.BgGreen, color.FgBlack).Printf("Successfully created OTP for superuser %q:", superuser.Email(cartadapopular@gmail.com))
+			color.New(color.BgGreen, color.FgBlack).Printf("Successfully created OTP for superuser %q:", superuser.Email())
 			color.Green("\n├─ Id:    %s", otp.Id)
 			color.Green("├─ Pass:  %s", pass)
 			color.Green("└─ Valid: %ds\n\n", superuser.Collection().OTP.Duration)
