@@ -24,6 +24,14 @@ module.exports = {
         if (!apiKey) {
             throw new Error("RESEND_API_KEY env var is not set")
         }
+        // Diagnostic (masked): reveals length + first/last chars so a wrong or
+        // padded key value is obvious in the logs without leaking the secret.
+        app.logger().info(
+            "resend key check",
+            "len", String(apiKey.length),
+            "head", apiKey.substring(0, 4),
+            "tail", apiKey.substring(apiKey.length - 3)
+        )
         const from = $os.getenv("RESEND_FROM") || "Cartada Popular <onboarding@resend.dev>"
         const base = "https://www.cartadapopular.com.br/assets"
 
