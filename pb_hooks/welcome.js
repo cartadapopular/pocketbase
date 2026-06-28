@@ -15,7 +15,12 @@
 
 module.exports = {
     sendWelcome: function (app, email) {
-        const apiKey = $os.getenv("RESEND_API_KEY")
+        let apiKey = $os.getenv("RESEND_API_KEY")
+        if (apiKey) {
+            // Strip whitespace/newlines and wrapping quotes that often sneak in
+            // when pasting the value into a hosting dashboard.
+            apiKey = apiKey.trim().replace(/^["']+|["']+$/g, "").trim()
+        }
         if (!apiKey) {
             throw new Error("RESEND_API_KEY env var is not set")
         }
