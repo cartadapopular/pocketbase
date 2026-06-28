@@ -1,17 +1,25 @@
 // Shared helper for the waitlist welcome email.
 //
-// Loaded via require() from waitlist_welcome.pb.js. PocketBase runs each hook
-// handler in its OWN isolated JSVM runtime, so a function defined at the top
-// level of the .pb.js file is NOT visible inside the handlers ("sendWelcome is
-// not defined"). The fix is to keep shared code in a separate (non-.pb.js)
-// module and require() it INSIDE each handler.
+// Sends via the Resend HTTP API ($http.send over HTTPS) instead of SMTP,
+// because Railway blocks outbound SMTP ports on non-Pro plans. HTTPS (443) is
+// never blocked, so this works on the free plan.
 //
-// NOTE: this file does NOT end in ".pb.js", so PocketBase will not try to load
-// it as a hook entrypoint — it is only pulled in by require().
+// Config comes from Railway environment variables (NOT hardcoded):
+//   RESEND_API_KEY  (required)  e.g. re_xxx
+//   RESEND_FROM     (optional)  e.g. "Cartada Popular <contato@cartadapopular.com.br>"
+//                   Defaults to Resend's sandbox sender, which can only deliver
+//                   to your own Resend account email until a domain is verified.
+//
+// Loaded via require() from waitlist_welcome.pb.js (handlers run in isolated
+// runtimes, so shared code must be required inside each handler).
 
 module.exports = {
     sendWelcome: function (app, email) {
-        const settings = app.settings()
+        const apiKey = $os.getenv("RESEND_API_KEY")
+        if (!apiKey) {
+            throw new Error("RESEND_API_KEY env var is not set")
+        }
+        const from = $os.getenv("RESEND_FROM") || "Cartada Popular <onboarding@resend.dev>"
         const base = "https://www.cartadapopular.com.br/assets"
 
         const html = `
@@ -65,14 +73,26 @@ module.exports = {
             "Equipe Cartada Popular\n" +
             "www.cartadapopular.com.br"
 
-        const message = new MailerMessage({
-            from:    { address: settings.meta.senderAddress, name: settings.meta.senderName },
-            to:      [{ address: email }],
-            subject: "[Lista de Espera] Pré-lançamento - Cartada Popular",
-            html:    html,
-            text:    text,
+    const res = $http.send({
+            url:     "https://api.resend.com/emails",
+            method:  "POST",
+            headers: {
+                "Authorization": "Bearer " + apiKey,
+                "Content-Type":  "application/json",
+            },
+            body: JSON.stringify({
+                from:    from,
+                to:      [email],
+                subject: "[Lista de Espera] Pré-lançamento - Cartada Popular",
+                html:    html,
+                text:    text,
+            }),
+            timeout: 30,
         })
 
-        app.newMailClient().send(message)
+        if (res.statusCode >= 400) {
+            const msg = (res.json && res.json.message) ? res.json.message : ("HTTP " + res.statusCode)
+            throw new Error("Resend error: " + msg)
+        }
     },
 }
