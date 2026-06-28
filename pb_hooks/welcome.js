@@ -24,15 +24,9 @@ module.exports = {
         if (!apiKey) {
             throw new Error("RESEND_API_KEY env var is not set")
         }
-        // Diagnostic (masked): reveals length + first/last chars so a wrong or
-        // padded key value is obvious in the logs without leaking the secret.
-        app.logger().info(
-            "resend key check",
-            "len", String(apiKey.length),
-            "head", apiKey.substring(0, 4),
-            "tail", apiKey.substring(apiKey.length - 3)
-        )
         const from = $os.getenv("RESEND_FROM") || "Cartada Popular <onboarding@resend.dev>"
+        // Replies go to a real inbox (the "from" can be a send-only address).
+        const replyTo = $os.getenv("RESEND_REPLY_TO") || "cartadapopular@gmail.com"
         const base = "https://www.cartadapopular.com.br/assets"
 
         const html = `
@@ -94,9 +88,10 @@ module.exports = {
                 "Content-Type":  "application/json",
             },
             body: JSON.stringify({
-                from:    from,
-                to:      [email],
-                subject: "[Lista de Espera] Pré-lançamento - Cartada Popular",
+                from:     from,
+                reply_to: replyTo,
+                to:       [email],
+                subject:  "[Lista de Espera] Pré-lançamento - Cartada Popular",
                 html:    html,
                 text:    text,
             }),
