@@ -91,7 +91,7 @@ module.exports = {
                 from:     from,
                 reply_to: replyTo,
                 to:       [email],
-                subject:  "[Lista de Espera] Pré-lançamento - Cartada Popular",
+                subject:  "Você entrou na lista da Cartada Popular! 🔥",
                 html:    html,
                 text:    text,
             }),
