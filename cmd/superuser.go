@@ -128,7 +128,7 @@ func superuserUpdateCommand(app core.App) *cobra.Command {
 			superuser.SetPassword(args[1])
 
 			if err := app.Save(superuser); err != nil {
-				return fmt.Errorf("failed to change superuser %q password: %w", superuser.Email(cartadapopular@gmail.com), err)
+				return fmt.Errorf("failed to change superuser %q password: %w", superuser.Email(), err)
 			}
 
 			color.Green("Successfully changed superuser %q password!", superuser.Email())
@@ -157,7 +157,7 @@ func superuserDeleteCommand(app core.App) *cobra.Command {
 			}
 
 			if err := app.Delete(superuser); err != nil {
-				return fmt.Errorf("failed to delete superuser %q: %w", superuser.Email(cartadapopular@gmail.com), err)
+				return fmt.Errorf("failed to delete superuser %q: %w", superuser.Email(), err)
 			}
 
 			color.Green("Successfully deleted superuser %q!", superuser.Email())
@@ -200,7 +200,7 @@ func superuserOTPCommand(app core.App) *cobra.Command {
 				return fmt.Errorf("failed to create OTP: %w", err)
 			}
 
-			color.New(color.BgGreen, color.FgBlack).Printf("Successfully created OTP for superuser %q:", superuser.Email(cartadapopular@gmail.com))
+			color.New(color.BgGreen, color.FgBlack).Printf("Successfully created OTP for superuser %q:", superuser.Email())
 			color.Green("\n├─ Id:    %s", otp.Id)
 			color.Green("├─ Pass:  %s", pass)
 			color.Green("└─ Valid: %ds\n\n", superuser.Collection().OTP.Duration)
