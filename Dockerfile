@@ -19,5 +19,7 @@ RUN apk add --no-cache ca-certificates
 COPY --from=builder /app/pocketbase /pb/pocketbase
 # JS migrations (auto-applied on start) — creates the `waitlist` collection.
 COPY pb_migrations /pb/pb_migrations
+# JS hooks (e.g. the waitlist welcome email)
+COPY pb_hooks /pb/pb_hooks
 EXPOSE 8080
 CMD ["/pb/pocketbase", "serve", "--http=0.0.0.0:8080"]
